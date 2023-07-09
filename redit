@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# redit script v0.1.2
+# redit script v0.1.5
 
 # Create tmp working directories
 
 mainfolder=".redit"
 tempfolder="tmp"
+redit_python="redit.py"
 
 editor="vim"
 
@@ -105,6 +106,10 @@ if [ "$#" -eq 1 ]; then
 		fi
     fi
 fi
+
+echo "Running redit.py ..."
+eval "python $redit_python"
+echo ""
 
 echo "Opening vim $temp_file ..."
 echo ""
