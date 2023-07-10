@@ -1,7 +1,7 @@
 #!/bin/bash
 
 name="redit"
-version="0.1.5"
+version="0.2.0"
 
 folder_main=".redit"
 folder_temp="tmp"

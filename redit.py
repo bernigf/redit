@@ -4,11 +4,14 @@ import sys
 import os
 import subprocess
 
+import pexpect
+import getpass
+
 from datetime import datetime, timedelta
 from time import sleep
 
 name = "redit"
-version = "0.1.8"
+version = "0.2.0"
 
 folder_main  = ".redit"
 folder_temp  = "tmp"
@@ -32,7 +35,7 @@ class pcolors :
     FAIL = '\033[91m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-    WARNING = '\033[93m'
+    warning = '\033[93m'
     endc = '\033[0m'
             
     BLINK    = '\33[5m'
@@ -57,33 +60,71 @@ def main(PARAM_args) :
 
     print(defName + f"Caching source: {pcolors.green}{source}{pcolors.endc}")
 
+    print()
+    print(f" {pcolors.warning}WARNING:{pcolors.endc} If you dont want to use password completion leave blank")
+    host_password = getpass.getpass(pre_str + "SSH host password: ") 
+    print()
+
     target = source_deconstruct(source)
-    get_ok = scp_copy(source, target)
+
+    if(host_password != ""):
+        get_ok = scp_copy_auto(source,target,host_password)
+    else:
+        get_ok = scp_copy(source, target)
 
     if(get_ok):
 
         exit_flag = False
 
-        while(!exit_flag):
+        while(not exit_flag):
 
             output = editor_open(target)
 
+            upload_flag = False
+            resp = input(pre_str + "Upload file back to host (yes/no) [no] : ")
+            if(resp == "") : resp = "no"
+            if(resp.lower() == "n") : resp = "no"
+            if(resp != "no") : upload_flag = True
+            
+            if(upload_flag):
+
+                upload_ok = False
+                if(host_password != ""):
+                    upload_ok = scp_copy_auto(target, source, host_password)
+                else:
+                    upload_ok = scp_copy(target, source)
+
+                if(upload_ok):
+                    print()
+                    print(defName + f"Upload finished {pcolors.green}OK{pcolors.endc}")
+                    print()
+                else:
+                    print()
+                    print(defName + f"Error uploading file")
+                    print()
+
+            resp = input(pre_str + "Continue editing file (yes/no) [yes] : ")
+            if(resp == "") : resp = "yes"
+            if(resp.lower() == "y") : resp = "yes"
+            if(resp != "yes") : exit_flag = True
 
 def editor_open(PARAM_file) :
 
     defName = " ### editor_open: "
 
     pre_str = " >>> "
+    
+    filename = PARAM_file
 
     print(defName + "Opening editor ...")
     print()
     print(pre_str + f"editor: {pcolors.yellow}{editor_name}{pcolors.endc}")
-    print(pre_str + f"file: {target}")
+    print(pre_str + f"file: {filename}")
     print()
 
     try:
 
-        subprocess.run([editor_name, target])
+        subprocess.run([editor_name, filename])
 
     except subprocess.CalledProcessError as e:
 
@@ -118,6 +159,48 @@ def scp_copy(PARAM_source, PARAM_target):
         return False
 
     print()
+
+def scp_copy_auto(PARAM_source, PARAM_target, PARAM_password):
+    
+    defName = " ### scp_copy_auto: "
+
+    source = PARAM_source
+    target = PARAM_target
+    password = PARAM_password
+
+    pre_str = " >>> "
+
+    print()
+    print(defName + "Calling scp (autofill password) ...")
+    print()
+    print(pre_str + "source: " + source)
+    print(pre_str + "target: " + target)
+    print()
+
+    #parts = source.split(":")
+    #host = parts[0]
+    #host_pass_str = host + "'s password:"
+    #print(host_pass_str)
+
+    child = pexpect.spawn(f"scp {source} {target}")
+    child.logfile_read = sys.stdout.buffer
+    index = child.expect(["password:", pexpect.EOF, pexpect.TIMEOUT])
+
+    if index == 0:
+
+        child.sendline(password)
+        child.expect(pexpect.EOF)
+        print()
+        print(defName + f"File copied {pcolors.green}OK{pcolors.endc}")
+        return True
+
+    else:
+
+        print(defName + f"Error occurred while copying the file: {e}")
+        return False
+
+    print()
+
 
 def source_deconstruct(PARAM_source):
 

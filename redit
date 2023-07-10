@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# redit script v0.1.8
+# redit script v0.2.0
 
 # Create tmp working directories
 
@@ -75,7 +75,8 @@ fi
 #    fi
 #fi
 
-echo "Running redit.py ..."
+echo ""
+echo " Running redit.py ..."
 eval "python3 ~/$mainfolder/$redit_python $remote_file"
 echo ""
 exit 1
