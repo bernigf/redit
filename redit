@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# redit script v0.1.5
+# redit script v0.1.8
 
 # Create tmp working directories
 
@@ -8,108 +8,77 @@ mainfolder=".redit"
 tempfolder="tmp"
 redit_python="redit.py"
 
-editor="vim"
-
-echo ""
-
-mkdir "$mainfolder"
-mkdir "$mainfolder"/"$tempfolder"
-
-last_file="./$mainfolder/last_file"
-last_remote_file="./$mainfolder/last_remote_file"
-
-# Add some custom be preferences to local .vimrc
-
-vim_config_file="$HOME/.vimrc"
-
-# Check if the file exists
-echo ""
-echo "Checking if $vim_config_file exists..."
-
-check_file=$vim_config_file
-
-if [ -f "$check_file" ] || [ -h "$check_file" ]; then
-
-    line_to_check='autocmd VimLeave * echo "remoteVIM > Last edited line: " . line(".")'
-
-    # Check if the string is present in any line of the file
-    if ! grep -q -Fx "$line_to_check" "$check_file"; then
-
-        # Append the line to the end of the file
-        echo "$line_to_check" >> "$check_file"
-        echo "Line added to $check_file"
-    else
-        echo "Line already exists in $check_file"
-    fi
-
-else
-
-    echo "File $check_file does not exist"
-    echo "$line_to_check" >> "$check_file"
-    echo "File $check_file created"
-
+# Check if the directory exists
+folder_check=$mainfolder
+if [ ! -d "$folder_check" ]; then
+    mkdir "$folder_check"
 fi
 
-echo ""
+check_folder="$mainfolder"/"$tempfolder"
+if [ ! -d "$folder_check" ]; then
+    mkdir "$folder_check"
+fi
 
 if [ "$#" -lt 1 ]; then
     echo "Usage: $0 <remote-file>"
     exit 1
 fi
 
-if [ "$#" -eq 1 ]; then
+#if [ "$#" -eq 1 ]; then
 
     # Check if the first argument is equal to "last"
-    if [ "$1" = "last" ]; then
+#    if [ "$1" = "last" ]; then
 
-        echo "Reading lastfile.."
+#        echo "Reading lastfile.."
 
-		last_file=$(head -n 1 "$last_file")
-		remote_file=$(head -n 1 "$last_remote_file")
+#		last_file=$(head -n 1 "$last_file")
+#		remote_file=$(head -n 1 "$last_remote_file")
 
-		echo ""
-		echo "LOCAL last   file: $last_file"
-		echo "LOCAL remote file: $remote_file"
-		echo ""
+#		echo ""
+#		echo "LOCAL last   file: $last_file"
+#		echo "LOCAL remote file: $remote_file"
+#		echo ""
         
-        temp_file=$last_file
+#        temp_file=$last_file
 
-    else
+ #   else
 				
 		# Store the first argument as a string
 		remote_file="$1"
 
 		# Extract the filename using basename and string manipulation
-		remote_filename=$(basename "${remote_file#*:}")
+		#remote_filename=$(basename "${remote_file#*:}")
 
-		temp_file="./$mainfolder/$tempfolder/$remote_filename"
+		#temp_file="./$mainfolder/$tempfolder/$remote_filename"
 
-        echo "Requesting $remote_file ..."
-        echo ""
+        #echo "Requesting $remote_file ..."
+        #echo ""
 
 		# Perform scp command using the arguments
-		scp "$remote_file" "$temp_file"
+		#scp "$remote_file" "$temp_file"
 
 		# Check the scp command's exit status
-		if [ "$?" -eq 0 ]; then
+		#if [ "$?" -eq 0 ]; then
 
-            echo ""
-            echo "File copied successfully to $temp_file"
-            echo ""
-            echo "$temp_file" > "$last_file"
-            echo "$remote_file" > "$last_remote_file"
+        #    echo ""
+        #    echo "File copied successfully to $temp_file"
+        #    echo ""
+            #echo "$temp_file" > "$last_file"
+            #echo "$remote_file" > "$last_remote_file"
 			
-		else
+		#else
 
-			echo "Failed to copy the file."
+		#	echo "Failed to copy the file."
 
-		fi
-    fi
-fi
+		#fi
+
+#    fi
+#fi
 
 echo "Running redit.py ..."
-eval "python $redit_python"
+eval "python3 ~/$mainfolder/$redit_python $remote_file"
 echo ""
+exit 1
 
 echo "Opening vim $temp_file ..."
 echo ""

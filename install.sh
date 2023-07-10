@@ -33,8 +33,8 @@ eval "mkdir ~/$folder_main/$folder_temp"
 echo "Creating ~/$folder_main/$folder_cache"
 eval "mkdir ~/$folder_main/$folder_cache"
 
-echo "Creating ~/$folder_main/$folder_cache/$folder_hosts"
-eval "mkdir ~/$folder_main/$folder_cache/$folder_hosts"
+#echo "Creating ~/$folder_main/$folder_cache/$folder_hosts"
+#eval "mkdir ~/$folder_main/$folder_cache/$folder_hosts"
 
 echo ""
 echo "Creating $name config files..."
