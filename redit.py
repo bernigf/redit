@@ -11,13 +11,15 @@ from datetime import datetime, timedelta
 from time import sleep
 
 name = "redit"
-version = "0.2.0"
+version = "0.2.3"
 
 folder_main  = ".redit"
 folder_temp  = "tmp"
 folder_cache = "cache"
 folder_hosts = "hosts"
 folder_home = os.path.expanduser("~")
+
+config_file_recent = "recent.yaml"
 
 editor_name = "vim"
 
@@ -56,7 +58,10 @@ def main(PARAM_args) :
     print()
     print(defName + f"Starting python {pcolors.yellow}{name}{pcolors.endc} v{version} at {now_str}")
 
-    source = ARGS[0]
+    if(ARGS==[]):
+        source = recent_menu()
+    else:
+        source = ARGS[0]
 
     print(defName + f"Caching source: {pcolors.green}{source}{pcolors.endc}")
 
@@ -66,6 +71,8 @@ def main(PARAM_args) :
     print()
 
     target = source_deconstruct(source)
+
+    recent_add(source)
 
     if(host_password != ""):
         get_ok = scp_copy_auto(source,target,host_password)
@@ -107,6 +114,70 @@ def main(PARAM_args) :
             if(resp == "") : resp = "yes"
             if(resp.lower() == "y") : resp = "yes"
             if(resp != "yes") : exit_flag = True
+
+def recent_add(PARAM_file) :
+
+    defName = " ### recent_add : "
+
+    pre_str = " >>> "
+
+    config_recent_file = folder_home + "/" + folder_main + "/" + config_file_recent
+
+    new_file = PARAM_file
+
+    if(not os.path.exists(config_recent_file)):
+
+        lines = []
+
+    else:
+
+        with open(config_recent_file, 'r') as file:
+            lines = file.read().splitlines()
+
+        for item in lines:
+
+            if item.strip() :
+
+                if(item.strip() == new_file) : lines.remove(item)
+
+            else:
+
+                lines.remove(item)
+
+    lines.insert(0, new_file)
+
+    with open(config_recent_file, 'w') as file:
+
+        for item in lines:
+            file.write(item + "\n")
+
+def recent_menu():
+
+    defName = " ### recent_menu : "
+
+    pre_str = " >>> "
+
+    config_recent_file = folder_home + "/" + folder_main + "/" + config_file_recent
+
+    if(os.path.exists(config_recent_file)):
+
+        with open(config_recent_file, 'r') as file:
+            lines = file.readlines()
+
+        counter = 1
+        files = [None]
+
+        print()
+
+        for item in lines :
+
+            if(item.strip() != "") :
+                files.append(item.strip())
+                print(f" {str(counter)} > {item.strip()}")
+                counter += 1
+
+        print()
+        input(pre_str + "Select item: ")
 
 def editor_open(PARAM_file) :
 

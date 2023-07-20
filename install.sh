@@ -1,14 +1,14 @@
 #!/bin/bash
 
 name="redit"
-version="0.2.0"
+version="0.2.3"
 
 folder_main=".redit"
 folder_temp="tmp"
 folder_cache="cache"
 folder_hosts="hosts"
 
-file_history="history.yaml"
+file_recent="recent.yaml"
 file_config="config.yaml"
 
 file_1_name="redit"
